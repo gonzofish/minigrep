@@ -2,10 +2,14 @@ use std::env;
 use std::fs::File;
 // prelude for file-handling
 use std::io::prelude::*;
+use std::process;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let config = Config::new(&args);
+    let config = Config::new(&args).unwrap_or_else(|err| {
+        println!("Problem parsing arguments: {}", err);
+        process::exit(1);
+    });
 
     println!("Search for: {}", config.query);
     println!("In file: {}", config.filename);
@@ -25,14 +29,18 @@ struct Config {
 }
 
 impl Config {
-    fn new(args: &[String]) -> Config {
-        // args[0] is the program itself
-        let filename = args[2].clone();
-        let query = args[1].clone();
+    fn new(args: &[String]) -> Result<Config, &'static str> {
+        if args.len() < 3 {
+            return Err("Not enough arguments");
+        } else {
+            // args[0] is the program itself
+            let filename = args[2].clone();
+            let query = args[1].clone();
 
-        Config {
-            filename,
-            query,
+            Ok(Config {
+                filename,
+                query,
+            })
         }
     }
 }
