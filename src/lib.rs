@@ -30,7 +30,10 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
     let mut contents = String::new();
 
     file.read_to_string(&mut contents)?;
-    println!("With the text:\n{}", contents);
+
+    for line in search(&config.query, &contents) {
+      println!("{}", line);
+    }
 
     Ok(())
 }
