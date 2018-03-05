@@ -1,4 +1,5 @@
 use std::env;
+use std::error::Error;
 use std::fs::File;
 // prelude for file-handling
 use std::io::prelude::*;
@@ -14,13 +15,10 @@ fn main() {
     println!("Search for: {}", config.query);
     println!("In file: {}", config.filename);
 
-    let mut file = File::open(config.filename).expect("file not found");
-    let mut contents = String::new();
-
-    file.read_to_string(&mut contents)
-        .expect("something went wrong reading the file");
-
-    println!("With the text:\n{}", contents);
+    if let Err(err) = run(config) {
+        println!("Application error: {}", err);
+        process::exit(1);
+    }
 }
 
 struct Config {
@@ -43,4 +41,14 @@ impl Config {
             })
         }
     }
+}
+
+fn run(config: Config) -> Result<(), Box<Error>> {
+    let mut file = File::open(config.filename)?;
+    let mut contents = String::new();
+
+    file.read_to_string(&mut contents)?;
+    println!("With the text:\n{}", contents);
+
+    Ok(())
 }
